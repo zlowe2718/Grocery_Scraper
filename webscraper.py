@@ -106,8 +106,8 @@ class webscraper:
 				all_names = soup.find_all("h3", class_="kds-Text--l text-default-900 font-secondary font-500 mt-8 mb-0")
 				results = {grocery["item"] : []}
 	
-				#returns the first 5 results into a dictionary
-				for i in range(0,5):
+				#returns the first n results into a dictionary (from settings.json)
+				for i in range(0, self.settings["results"]):
 					dollars = all_dollars[i].string
 					name = all_names[i].string
 					cents = ""
@@ -162,8 +162,8 @@ class webscraper:
 				all_names = soup.find_all("div", class_="css-15uwigl")
 				results = {grocery["item"] : []}
 	
-				#returns the first 5 results into a dictionary
-				for i in range(0,5):
+				#returns the first n results into a dictionary
+				for i in range(0, self.settings["results"]):
 					price = all_prices[i].string[1:5]
 					name = all_names[i].string			
 					results[grocery["item"]].append({"item" : name, "price" : price})
@@ -191,7 +191,7 @@ class webscraper:
 		try:
 			#sometimes the website javascript is finicky, so the extra waits are added to
 			#ensure the code continues to run
-			time.sleep(1)
+			time.sleep(3)
 			choose_store = website.find_element(By.CSS_SELECTOR, "a span.spr-store")
 			self.wait_for_clickable_element("span.spr-store")
 			choose_store.click()
@@ -206,8 +206,11 @@ class webscraper:
 	
 			stores = self.wait_for_elements("button.button.small.hollow")
 			stores[0].click()
-	
-			search = self.wait_for_element("div[aria-label='Search']").click()
+			
+			#short wait needed for page to refresh to new page
+			time.sleep(1)
+			search = self.wait_for_element("div[aria-label='Search']")
+			search.click()
 	
 			search_bar = self.wait_for_elements("input[name='nav-search']")
 	
@@ -233,8 +236,8 @@ class webscraper:
 				all_names = soup.find_all("div", class_="css-f85de")
 				results = {grocery["item"] : []}
 	
-				#returns the first 5 results into a dictionary
-				for i in range(0,5):
+				#returns the first n results into a dictionary
+				for i in range(0, self.settings["results"]):
 					price = all_prices[i].string[1:5]
 					name = all_names[i].string			
 					results[grocery["item"]].append({"item" : name, "price" : price})
@@ -251,7 +254,7 @@ class webscraper:
 				ActionChains(website).key_down(Keys.CONTROL, search_bar).send_keys("a").key_down(Keys.DELETE, search_bar).key_up(Keys.DELETE, search_bar).key_up(Keys.CONTROL, search_bar).perform()
 		except TimeoutException:
 			website.quit()
-			return "Sprouts was too slow to respond"
+			raise TimeoutException
 
 		website.quit()
 		return updated_grocery_list

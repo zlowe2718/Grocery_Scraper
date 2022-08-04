@@ -1,5 +1,6 @@
 {
 	"seconds": 10,
 	"zipcode": "",
-	"address": ""
+	"address": "",
+	"results": 5
 }
