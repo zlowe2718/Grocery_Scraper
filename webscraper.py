@@ -11,10 +11,9 @@ import time
 
 class webscraper:
 
-	def __init__(self, zipcode, **kwargs):
+	def __init__(self):
 		with open("settings.json", "r") as fh:
 			self.settings = json.load(fh)
-		self.zipcode 		= zipcode
 		self.kroger 		= {"url" : "https://www.kroger.com/", "distance" : 0}
 		self.aldi 			= {"url" : "https://www.aldi.us/", "distance" : 0}
 		self.sprouts 		= {"url" : "https://www.sprouts.com/", "distance" : 0}
@@ -65,7 +64,7 @@ class webscraper:
 			#finds the search_bar for the zipcode element
 			search_zipcode = self.wait_for_element("input.kds-Input.kds-Input--compact.kds-SolitarySearch-input.kds-Input--search.min-w-0")
 			search_zipcode.clear()
-			search_zipcode.send_keys(self.zipcode, Keys.ENTER)
+			search_zipcode.send_keys(self.settings["zipcode"], Keys.ENTER)
 	
 			#finds the select_store element
 			select_store = self.wait_for_element("button.kds-Button.kds-Button--primary.kds-Button--compact.AvailableModality--Button.mt-0")
@@ -139,7 +138,7 @@ class webscraper:
 			choose_store = self.wait_for_element("a.top-nav-list-element-link").click()
 	
 			search_store = self.wait_for_element("input#DirectorySearchInput")
-			search_store.send_keys(self.zipcode, Keys.ENTER)
+			search_store.send_keys(self.settings["zipcode"], Keys.ENTER)
 	
 			stores = self.wait_for_elements("a[data-ya-track='visitpage']")
 			stores[0].click()
@@ -190,7 +189,8 @@ class webscraper:
 		self.website = website
 
 		try:
-			#sometimes the website javascript is finicky, so the extra waits seem to help
+			#sometimes the website javascript is finicky, so the extra waits are added to
+			#ensure the code continues to run
 			time.sleep(1)
 			choose_store = website.find_element(By.CSS_SELECTOR, "a span.spr-store")
 			self.wait_for_clickable_element("span.spr-store")
@@ -202,7 +202,7 @@ class webscraper:
 
 			search_store = self.wait_for_element("input[name='terms']")
 			self.wait_for_clickable_element("input[name='terms']")
-			search_store.send_keys(self.zipcode, Keys.ENTER)
+			search_store.send_keys(self.settings["zipcode"], Keys.ENTER)
 	
 			stores = self.wait_for_elements("button.button.small.hollow")
 			stores[0].click()
